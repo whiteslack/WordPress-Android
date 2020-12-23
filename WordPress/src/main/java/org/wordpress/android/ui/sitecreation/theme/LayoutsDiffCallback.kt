@@ -17,5 +17,6 @@ class LayoutsDiffCallback(
         val new = newList[newItemPosition]
         val old = oldList[oldItemPosition]
         return new.selected == old.selected && new.preview == old.preview && new.title == old.title
+                && new.mobilePreview == old.mobilePreview
     }
 }

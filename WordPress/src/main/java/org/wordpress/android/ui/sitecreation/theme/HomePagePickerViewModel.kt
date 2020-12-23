@@ -60,6 +60,9 @@ class HomePagePickerViewModel @Inject constructor(
     private val _onBackButtonPressed = SingleLiveEvent<Unit>()
     val onBackButtonPressed: LiveData<Unit> = _onBackButtonPressed
 
+    private val _mobileThumbnails = SingleLiveEvent<Boolean>()
+    val mobileThumbnails: LiveData<Boolean> = _mobileThumbnails
+
     sealed class DesignSelectionAction(val template: String, val segmentId: Long?) {
         object Skip : DesignSelectionAction(defaultTemplateSlug, null)
         class Choose(template: String, segmentId: Long?) : DesignSelectionAction(template, segmentId)
@@ -81,6 +84,7 @@ class HomePagePickerViewModel @Inject constructor(
     }
 
     fun start() {
+        _mobileThumbnails.value = true
         if (uiState.value !is UiState.Content) {
             analyticsTracker.trackSiteDesignViewed()
             fetchLayouts()
@@ -112,6 +116,7 @@ class HomePagePickerViewModel @Inject constructor(
                         title = it.title ?: "",
                         preview = it.screenshot!!,
                         selected = it.slug == state.selectedLayoutSlug,
+                        mobilePreview = _mobileThumbnails.value ?: false,
                         onItemTapped = { onLayoutTapped(layoutSlug = it.slug!!) },
                         onThumbnailReady = { onThumbnailReady(layoutSlug = it.slug!!) }
                 )
@@ -243,6 +248,13 @@ class HomePagePickerViewModel @Inject constructor(
             } else {
                 updateUiState(state.copy(selectedLayoutSlug = layoutSlug, isToolbarVisible = true))
             }
+            loadLayouts()
+        }
+    }
+
+    fun onThumbnailModeChanged(mobileMode: Boolean) {
+        if (_mobileThumbnails.value != mobileMode) {
+            _mobileThumbnails.value = mobileMode
             loadLayouts()
         }
     }
